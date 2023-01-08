@@ -8,59 +8,35 @@ import Logo from "../../assets/DashboardLogo.png";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Button } from "globalStyles/style";
-//import axios  from 'axios';
+import axios  from 'axios';
 
 const Login = ({ login, isAuthenticated }) => {
-
-  //const [navigate, setNavigate] = useState(false);
-  const [isLoading, setisLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
-  const { email, password } = formData;
-
-  const onChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-
-  const onSubmit = (e) => {
-    e.preventDefault();
-    login(email, password);
-
-    // setisLoading(true);
-    
-  };
   
-  if (isAuthenticated) {
-    // setisLoading(false)
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [navigate, setNavigate] = useState(false);
+	const [isLoading, setisLoading] = useState(false)
+
+ 
+  const submit = async e => {
+    
+    setisLoading(true)
+    e.preventDefault();
+
+    const { data } = await axios.post('https://aquiladev.azurewebsites.net/api/token/', {
+      email, password
+    });
+    localStorage.setItem('user', JSON.stringify(data));
+    axios.defaults.headers.common['Authorization'] = `Bearer ${data['access']}`;
+
+    setNavigate(true);
+
+  }
+  if (navigate) {
+    
     return <Redirect to="/first-login" />;
   }
-  
-
-  // const [email, setEmail] = useState('');
-  // const [password, setPassword] = useState('');
-  
-
-
-  // const submit = async e => {
-    
-  //   setisLoading(true)
-  //   e.preventDefault();
-
-  //   const { data } = await axios.post('https://aquiladev.azurewebsites.net/api/token/', {
-  //     email, password
-  //   });
-  //   localStorage.setItem('user', JSON.stringify(data));
-  //   axios.defaults.headers.common['Authorization'] = `Bearer ${data['access']}`;
-
-  //   setNavigate(true);
-
-  // }
-  // if (navigate) {
-    
-  //   return <Redirect to="/first-login" />;
-  // }
 
   return (
     <div className="login-body">
@@ -68,14 +44,14 @@ const Login = ({ login, isAuthenticated }) => {
         <div className="form-div">
           <img src={Logo} alt="aquila" />
           <p>Welcome Back</p>
-          <form className="login-form" onSubmit={(e) => onSubmit(e)}>
+          <form className="login-form" onSubmit={submit}>
             <input
               type="email"
               required
               value={email}
               name="email"
               placeholder="Email"
-              onChange={(e) => onChange(e)}
+              onChange={(e) => setEmail(e.target.value)}
             />
             <input
               className="passInput"
@@ -83,7 +59,7 @@ const Login = ({ login, isAuthenticated }) => {
               value={password}
               type="password"
               placeholder="Password"
-              onChange={(e) => onChange(e)}
+              onChange={(e) => setPassword(e.target.value)}
               name="password"
             />
 
